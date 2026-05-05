@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumidoll - Toko Boneka Profesional</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #FAF0D7; color: #333; overflow-x: hidden; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px 0; border-bottom: 2px solid #8B5A2B; position: sticky; top: 0; background: #FAF0D7; z-index: 100;
+        }
+        nav ul { display: flex; list-style: none; gap: 10px; }
+        nav ul li a { 
+            text-decoration: none; color: #8B5A2B; font-weight: 600; font-size: 13px; 
+            padding: 8px 12px; border-radius: 20px; transition: 0.3s;
+        }
+        nav ul li a:hover, nav ul li a.active { background-color: #8B5A2B; color: #fff; }
+        .cart-trigger { 
+            background: #ee4d2d; color: white; border: none; padding: 10px 18px; 
+            border-radius: 5px; cursor: pointer; font-weight: bold; position: relative;
+        }
+
+        /* --- PERBAIKAN BAGIAN HERO (REVISI NOMOR 2) --- */
+        .hero-banner { 
+            width: 100%; height: 350px; margin-top: 10px; 
+            border-radius: 15px; overflow: hidden; display: flex; 
+            align-items: center; justify-content: center; position: relative;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('https://images.unsplash.com/photo-1555448248-2571daf6344b?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 30px rgba(139, 90, 43, 0.3);
+        }
+        
+        .hero-text { 
+            position: absolute; color: white; text-align: center; 
+            font-size: 42px; font-weight: 900; letter-spacing: 4px; 
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            animation: floatingText 3s ease-in-out infinite; /* Animasi Mengambang */
+        }
+
+        @keyframes floatingText {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        /* ------------------------------------------- */
+
+        .page-content { margin: 20px 0; padding: 30px; background: #fff; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .page-section { display: none; animation: fadeIn 0.4s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .promo-label { font-size: 22px; color: #8B5A2B; margin-bottom: 20px; border-left: 5px solid #ee4d2d; padding-left: 10px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .product-card { 
+            border: 1px solid #eee; border-radius: 8px; overflow: hidden; 
+            transition: 0.3s; display: flex; flex-direction: column; background: #fff;
+        }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #ee4d2d; }
+        
+        /* Box Gambar Produk */
+        .img-box { width: 100%; height: 180px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .img-box img { transform: scale(1.1); }
+
+        .info-box { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .info-box h3 { font-size: 14px; height: 38px; overflow: hidden; margin-bottom: 5px; color: #444; }
+        .info-box .caption { font-size: 11px; color: #888; margin-bottom: 8px; font-style: italic; line-height: 1.4; }
+        .info-box .price { color: #ee4d2d; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        
+        .qty-input { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+        .qty-input input { width: 40px; text-align: center; border: 1px solid #ddd; padding: 3px; }
+        .qty-btn { background: #f8f8f8; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .btn-buy { 
+            background: #ee4d2d; color: white; border: none; padding: 8px; 
+            border-radius: 3px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .btn-buy:hover { background: #d73a1e; }
+
+        .split-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        .cart-box, .form-box { background: #fdfdfd; padding: 20px; border: 1px solid #eee; border-radius: 10px; }
+        .cart-item-row { 
+            display: flex; flex-direction: column; gap: 8px; padding: 15px 0; 
+            border-bottom: 1px solid #eee; font-size: 14px; 
+        }
+        .cart-item-header { display: flex; justify-content: space-between; font-weight: bold; color: #444; }
+        .cart-item-actions { display: flex; justify-content: space-between; align-items: center; }
+        .total-summary { margin-top: 15px; border-top: 2px solid #8B5A2B; padding-top: 10px; font-weight: bold; font-size: 18px; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 4px; font-weight: bold; color: #666; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;
+        }
+
+        #invoice { 
+            display: none; background: white; padding: 30px; border: 2px solid #333; 
+            max-width: 400px; margin: 20px auto; font-family: 'Courier New', Courier, monospace; 
+        }
+        .success-msg { color: #28a745; font-weight: bold; text-align: center; margin-bottom: 10px; font-size: 18px; }
+        .fail-msg { color: #dc3545; font-weight: bold; text-align: center; margin-bottom: 10px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#beranda" class="menu-link active">HOME</a></li>
+                    <li><a href="#produk" class="menu-link">KATALOG</a></li>
+                    <li><a href="#tentang" class="menu-link">TENTANG</a></li>
+                    <li><a href="#kontak" class="menu-link">KONTAK</a></li>
+                    <li><a href="#lokasi" class="menu-link">LOKASI</a></li>
+                </ul>
+            </nav>
+            <button class="cart-trigger" onclick="showPage('keranjang-page')">
+                🛒 KERANJANG (<span id="cart-count">0</span>)
+            </button>
+        </header>
+
+        <div class="hero-banner">
+            <div class="hero-text">LUMIDOLL PREMIUM STORE</div>
+        </div>
+
+        <div class="page-content">
+            <section id="beranda" class="page-section active">
+                <h2 class="promo-label">🔥 FLASH SALE HARI INI</h2>
+                <div class="product-grid" id="flash-sale-container">
+                </div>
+            </section>
+
+            <section id="produk" class="page-section">
+                <h2 class="promo-label">SEMUA KOLEKSI BONEKA</h2>
+                <div class="product-grid" id="katalog-container">
+                </div>
+            </section>
+
+            <section id="keranjang-page" class="page-section">
+                <div class="split-layout">
+                    <div class="cart-box">
+                        <h2 style="margin-bottom:15px; color:#ee4d2d;">🛒 Detail Keranjang</h2>
+                        <div id="cart-items-list">
+                            <p style="color:#999;">Keranjang masih kosong...</p>
+                        </div>
+                        <div class="total-summary">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>Total Belanja:</span>
+                                <span id="total-price-display">Rp0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-box">
+                        <h3 style="margin-bottom:15px;">📝 Data Pengiriman</h3>
+                        <form id="orderForm">
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="custName" value="Wike Arnila" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor WhatsApp</label>
+                                <input type="number" id="custPhone" placeholder="0812..." required>
+                            </div>
+                            <div class="form-group">
+                                <label>Metode Pembayaran</label>
+                                <select id="payMethod">
+                                    <option value="Transfer Bank">Transfer Bank (Manual)</option>
+                                    <option value="COD">COD (Bayar di Tempat)</option>
+                                    <option value="E-Wallet">E-Wallet (Dana/OVO)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Alamat Lengkap</label>
+                                <textarea id="address" rows="3" placeholder="Nama Jalan, No Rumah, Kec/Kota" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-buy" style="width:100%; padding:15px; font-size:16px;">BUAT PESANAN SEKARANG</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="invoice">
+                    <div id="notif-status"></div>
+                    <center>
+                        <h3>LUMIDOLL STORE</h3>
+                        <p>INV-09020182529014-<span id="inv-rand"></span></p>
+                        <p>***************************</p>
+                    </center>
+                    <div id="invoice-content"></div>
+                    <p>***************************</p>
+                    <center><p>Terima kasih telah belanja!</p></center>
+                    <button class="btn-buy" onclick="showPage('beranda')" style="width:100%; margin-top:10px; background:#333;">Tutup Struk</button>
+                </div>
+            </section>
+
+            <section id="tentang" class="page-section">
+                <h2 class="promo-label">Tentang Kami</h2>
+                <p>Lumidoll adalah toko boneka terpercaya dengan kualitas ekspor. Semua bahan menggunakan bulu halus anti alergi.</p>
+            </section>
+
+            <section id="lokasi" class="page-section">
+                <h2 class="promo-label">Lokasi Kami</h2>
+                <iframe class="map-frame" src="about:blank" style="width:100%; height:300px; border:1px solid #ccc;"></iframe>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA PRODUK DENGAN GAMBAR (REVISI NOMOR 1) ---
+        const products = [
+            { id: 1, name: "Boneka Beruang", price: 125000, img: "boneka beruang.jpeg", cap: "Ukuran: 40cm | Berat: 350g | Cocok untuk teman tidur, bahan sangat halus.", promo: true },
+            { id: 2, name: "Boneka Kucing", price: 110000, img: "kucing.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Kado estetik untuk hiasan meja belajar.", promo: true },
+            { id: 3, name: "Kucing Nana Gemoy", price: 115000, img: "anjing.jpeg", cap: "Ukuran: 30cm | Berat: 280g | Boneka bulat empuk untuk teman perjalanan.", promo: true },
+            { id: 4, name: "Beruang Cokelat Klasik", price: 95000, img: "Brown Teddy Bear.jpeg", cap: "Ukuran: 50cm | Berat: 500g | Kado ulang tahun klasik yang tak lekang waktu.", promo: true },
+            { id: 5, name: "Panda Raksasa", price: 250000, img: "Panda.jpeg", cap: "Ukuran: 100cm | Berat: 1500g | Boneka raksasa untuk dipeluk, isi dakron murni.", promo: true },
+            { id: 6, name: "Dinosaurus T-Rex Hijau", price: 130000, img: "Dinosaurus.jpeg", cap: "Ukuran: 45cm | Berat: 400g | Mainan edukasi bentuk dino yang tidak menyeramkan.", promo: true },
+            { id: 7, name: "Paus Biru Samudera", price: 140000, img: "Paus salju.jpeg", cap: "Ukuran: 60cm | Berat: 600g | Cocok untuk bantal sofa atau bantal leher.", promo: true },
+            { id: 8, name: "Unicorn Pelangi", price: 150000, img: "Unicorn.jpeg", cap: "Ukuran: 40cm | Berat: 350g | Warna pastel cantik, hadiah sempurna untuk anak perempuan.", promo: true },
+            { id: 9, name: "Babi Merah Muda", price: 85000, img: "Babi.jpeg", cap: "Ukuran: 25cm | Berat: 200g | Ukuran mini untuk dekorasi dasbor mobil.", promo: true },
+            { id: 10, name: "Pinguin Salju", price: 90000, img: "Pinguin.jpeg", cap: "Ukuran: 30cm | Berat: 250g | Berbahan velboa dingin, nyaman dipeluk.", promo: true },
+            { id: 11, name: "Singa Berani", price: 105000, img: "Singah.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Surai tebal dan lembut, aman untuk bayi.", promo: true },
+            { id: 12, name: "Jerapah Leher Panjang", price: 110000, img: "Jerapah.jpeg", cap: "Ukuran: 70cm | Berat: 450g | Bisa diletakkan berdiri untuk sudut kamar.", promo: true },
+            { id: 13, name: "Koala Tidur", price: 95000, img: "Koala.jpeg", cap: "Ukuran: 25cm | Berat: 220g | Desain koala memeluk pohon, sangat menggemaskan.", promo: true },
+            { id: 14, name: "Bebek Kuning Cerah", price: 75000, img: "Bebek.jpeg", cap: "Ukuran: 20cm | Berat: 150g | Bahan tahan air di bagian luar, mudah dicuci.", promo: true },
+            { id: 15, name: "Gurita Bolak-Balik", price: 65000, img: "Gurita.jpeg", cap: "Ukuran: 15cm | Berat: 100g | Boneka mood yang bisa dibalik (senang/marah).", promo: true },
+            { id: 16, name: "Hamster Gendut", price: 80000, img: "Hamster.jpeg", cap: "Ukuran: 20cm | Berat: 250g | Pipi super tembem, sangat empuk ditekan.", promo: false },
+            { id: 17, name: "Rubah Oranye", price: 100000, img: "Rubah.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Ekor besar berbulu lebat untuk bantal leher.", promo: false }
+            // ... (kamu bisa melanjutkan menambahkan URL serupa untuk produk lainnya)
+        ];
+
+        let cart = [];
+
+        function renderProducts() {
+            const promoCont = document.getElementById('flash-sale-container');
+            const katalogCont = document.getElementById('katalog-container');
+
+            products.forEach(p => {
+                const card = `
+                    <div class="product-card">
+                        <div class="img-box">
+                            <img src="${p.img}" alt="${p.name}">
+                        </div>
+                        <div class="info-box">
+                            <h3>${p.name}</h3>
+                            <p class="caption">${p.cap}</p>
+                            <p class="price">Rp${p.price.toLocaleString()}</p>
+                            <div class="qty-input">
+                                <button type="button" class="qty-btn" onclick="this.nextElementSibling.stepDown()">-</button>
+                                <input type="number" value="1" min="1" id="qty-${p.id}">
+                                <button type="button" class="qty-btn" onclick="this.previousElementSibling.stepUp()">+</button>
+                            </div>
+                            <button class="btn-buy" onclick="addToCart(${p.id})">TAMBAH KE KERANJANG</button>
+                        </div>
+                    </div>
+                `;
+                if(p.promo) {
+                    promoCont.innerHTML += card;
+                }
+                katalogCont.innerHTML += card;
+            });
+        }
+
+        function addToCart(id) {
+            const qtyInput = document.getElementById(`qty-${id}`);
+            const qty = parseInt(qtyInput.value);
+            
+            if (qty < 1 || isNaN(qty)) return;
+
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            
+            if(existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ ...product, qty: qty });
+            }
+            
+            qtyInput.value = 1;
+            updateUI();
+            alert(`Berhasil menambahkan ${qty} ${product.name} ke keranjang!`);
+        }
+
+        function changeCartQty(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(cartItem => cartItem.id !== id);
+                }
+                updateUI();
+            }
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(cartItem => cartItem.id !== id);
+            updateUI();
+        }
+
+        function updateUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = totalItems;
+            
+            const list = document.getElementById('cart-items-list');
+            let total = 0;
+
+            if(cart.length === 0) {
+                list.innerHTML = `<p style="color:#999; padding:10px 0;">Keranjang masih kosong...</p>`;
+            } else {
+                list.innerHTML = cart.map(item => {
+                    const subtotal = item.price * item.qty;
+                    total += subtotal;
+                    return `
+                        <div class="cart-item-row">
+                            <div class="cart-item-header">
+                                <span>${item.name}</span>
+                                <span style="color:#ee4d2d;">Rp${subtotal.toLocaleString()}</span>
+                            </div>
+                            <div class="cart-item-actions">
+                                <span style="font-size:12px; color:#888;">Harga: Rp${item.price.toLocaleString()}/pcs</span>
+                                <div class="qty-input" style="margin-bottom:0;">
+                                    <button type="button" class="qty-btn" onclick="changeCartQty(${item.id}, -1)">-</button>
+                                    <input type="number" value="${item.qty}" readonly style="width:40px; background:#f9f9f9;">
+                                    <button type="button" class="qty-btn" onclick="changeCartQty(${item.id}, 1)">+</button>
+                                    <button type="button" onclick="removeItem(${item.id})" style="color:red; border:none; background:none; cursor:pointer; margin-left:10px; font-size:16px;">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('total-price-display').innerText = `Rp${total.toLocaleString()}`;
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            
+            document.querySelector('.hero-banner').style.display = (id === 'beranda') ? 'flex' : 'none';
+            document.getElementById('invoice').style.display = 'none';
+            document.querySelector('.split-layout').style.display = (id === 'keranjang-page') ? 'grid' : 'none';
+        }
+
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                showPage(link.getAttribute('href').substring(1));
+            });
+        });
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if(cart.length === 0) {
+                alert("Keranjang Anda kosong! Silakan pilih boneka terlebih dahulu.");
+                return;
+            }
+
+            const name = document.getElementById('custName').value;
+            const pay = document.getElementById('payMethod').value;
+            const statusBox = document.getElementById('notif-status');
+            const isSuccess = Math.random() > 0.1; 
+
+            document.querySelector('.split-layout').style.display = 'none';
+            document.getElementById('invoice').style.display = 'block';
+            document.getElementById('inv-rand').innerText = Math.floor(Math.random() * 9000) + 1000;
+
+            if(isSuccess) {
+                statusBox.innerHTML = `<div class="success-msg">✔ PEMBAYARAN BERHASIL</div>`;
+                let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                let pajak = subtotal * 0.1; 
+                let total = subtotal + pajak;
+
+                let html = `
+                    <p>Tgl: ${new Date().toLocaleDateString()}</p>
+                    <p>Nama: ${name}</p>
+                    <p>Bayar: ${pay}</p>
+                    <hr>
+                `;
+                cart.forEach(item => {
+                    html += `<p>${item.name.substring(0,18)} x${item.qty} = Rp${(item.price*item.qty).toLocaleString()}</p>`;
+                });
+                html += `
+                    <hr>
+                    <p>Subtotal: Rp${subtotal.toLocaleString()}</p>
+                    <p>Pajak (10%): Rp${pajak.toLocaleString()}</p>
+                    <p><strong>TOTAL: Rp${total.toLocaleString()}</strong></p>
+                `;
+                document.getElementById('invoice-content').innerHTML = html;
+                cart = [];
+                updateUI();
+            } else {
+                statusBox.innerHTML = `<div class="fail-msg">✘ PEMBAYARAN GAGAL</div>`;
+                document.getElementById('invoice-content').innerHTML = `<p align="center">Maaf, saldo tidak mencukupi atau koneksi terputus. Silakan ulangi pesanan.</p>`;
+            }
+        });
+
+        window.onload = renderProducts;
+    </script>
+</body>
+</html>

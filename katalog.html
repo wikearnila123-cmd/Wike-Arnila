@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumidoll - Katalog</title>
+    <style>
+        /* style sama persis dengan index.html */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #FAF0D7; color: #333; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 2px solid #8B5A2B; position: sticky; top: 0; background: #FAF0D7; z-index: 100; }
+        nav ul { display: flex; list-style: none; gap: 10px; }
+        nav ul li a { text-decoration: none; color: #8B5A2B; font-weight: 600; font-size: 13px; padding: 8px 12px; border-radius: 20px; transition: 0.3s; }
+        nav ul li a:hover, nav ul li a.active { background-color: #8B5A2B; color: #fff; }
+        .cart-trigger { background: #ee4d2d; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        .page-content { margin: 40px 0; padding: 30px; background: #fff; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .promo-label { font-size: 22px; color: #8B5A2B; margin-bottom: 20px; border-left: 5px solid #ee4d2d; padding-left: 10px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .product-card { border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; background: #fff; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #ee4d2d; }
+        
+        /* Tambahan: kursor pointer untuk gambar */
+        .img-box { width: 100%; height: 180px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .img-box img { transform: scale(1.1); }
+        
+        .info-box { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .info-box h3 { font-size: 14px; height: 38px; overflow: hidden; margin-bottom: 5px; color: #444; }
+        .info-box .caption { font-size: 11px; color: #888; margin-bottom: 8px; font-style: italic; line-height: 1.4; }
+        .info-box .price { color: #ee4d2d; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .qty-input { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+        .qty-input input { width: 40px; text-align: center; border: 1px solid #ddd; padding: 3px; }
+        .qty-btn { background: #f8f8f8; border: 1px solid #ddd; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .btn-buy { background: #ee4d2d; color: white; border: none; padding: 8px; border-radius: 3px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .btn-buy:hover { background: #d73a1e; }
+
+        /* MODAL PREVIEW CSS */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal-content { max-width: 90%; max-height: 80%; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="katalog.html" class="active">KATALOG</a></li>
+                <li><a href="tentang.html">TENTANG</a></li>
+                <li><a href="kontak.html">KONTAK</a></li>
+                <li><a href="lokasi.html">LOKASI</a></li>
+            </ul>
+        </nav>
+        <button class="cart-trigger" onclick="location.href='keranjang.html'">
+            🛒 KERANJANG (<span id="cart-count">0</span>)
+        </button>
+    </header>
+
+    <div class="page-content">
+        <h2 class="promo-label">SEMUA KOLEKSI BONEKA</h2>
+        <div class="product-grid" id="all-products-container"></div>
+    </div>
+</div>
+
+<!-- Modal untuk melihat gambar -->
+<div id="imageModal" class="modal" onclick="closePreview()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="imgFull">
+</div>
+
+<script>
+    // Data produk tetap lengkap (20 produk)[cite: 2]
+    const products = [
+        { id: 1, name: "Boneka Beruang", price: 125000, img: "boneka beruang.jpeg", cap: "Ukuran: 40cm | Berat: 350g | Cocok untuk teman tidur, bahan sangat halus.", promo: true },
+        { id: 2, name: "Boneka Kucing", price: 110000, img: "kucing.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Kado estetik untuk hiasan meja belajar.", promo: true },
+        { id: 3, name: "Boneka Anjing", price: 115000, img: "anjing.jpeg", cap: "Ukuran: 30cm | Berat: 280g | Boneka bulat empuk untuk teman perjalanan.", promo: true },
+        { id: 4, name: "Beruang Cokelat Klasik", price: 95000, img: "Brown Teddy Bear.jpeg", cap: "Ukuran: 50cm | Berat: 500g | Kado ulang tahun klasik yang tak lekang waktu.", promo: true },
+        { id: 5, name: "Panda Raksasa", price: 250000, img: "Panda.jpeg", cap: "Ukuran: 100cm | Berat: 1500g | Boneka raksasa untuk dipeluk, isi dakron murni.", promo: true },
+        { id: 6, name: "Dinosaurus T-Rex Hijau", price: 130000, img: "Dinosaurus.jpeg", cap: "Ukuran: 45cm | Berat: 400g | Mainan edukasi bentuk dino yang tidak menyeramkan.", promo: true },
+        { id: 7, name: "Paus Biru Samudera", price: 140000, img: "Paus salju.jpeg", cap: "Ukuran: 60cm | Berat: 600g | Cocok untuk bantal sofa atau bantal leher.", promo: true },
+        { id: 8, name: "Unicorn Pelangi", price: 150000, img: "Unicorn.jpeg", cap: "Ukuran: 40cm | Berat: 350g | Warna pastel cantik, hadiah sempurna untuk anak perempuan.", promo: true },
+        { id: 9, name: "Babi Merah Muda", price: 85000, img: "Babi.jpeg", cap: "Ukuran: 25cm | Berat: 200g | Ukuran mini untuk dekorasi dasbor mobil.", promo: true },
+        { id: 10, name: "Pinguin Salju", price: 90000, img: "Pinguin.jpeg", cap: "Ukuran: 30cm | Berat: 250g | Berbahan velboa dingin, nyaman dipeluk.", promo: true },
+        { id: 11, name: "Singa Berani", price: 105000, img: "Singah.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Surai tebal dan lembut, aman untuk bayi.", promo: true },
+        { id: 12, name: "Jerapah Leher Panjang", price: 110000, img: "Jerapah.jpeg", cap: "Ukuran: 70cm | Berat: 450g | Bisa diletakkan berdiri untuk sudut kamar.", promo: true },
+        { id: 13, name: "Koala Tidur", price: 95000, img: "Koala.jpeg", cap: "Ukuran: 25cm | Berat: 220g | Desain koala memeluk pohon, sangat menggemaskan.", promo: true },
+        { id: 14, name: "Bebek Kuning Cerah", price: 75000, img: "Bebek.jpeg", cap: "Ukuran: 20cm | Berat: 150g | Bahan tahan air di bagian luar, mudah dicuci.", promo: true },
+        { id: 15, name: "Gurita Bolak-Balik", price: 65000, img: "Gurita.jpeg", cap: "Ukuran: 15cm | Berat: 100g | Boneka mood yang bisa dibalik (senang/marah).", promo: true },
+        { id: 16, name: "Hamster Gendut", price: 80000, img: "Hamster.jpeg", cap: "Ukuran: 20cm | Berat: 250g | Pipi super tembem, sangat empuk ditekan.", promo: false },
+        { id: 17, name: "Rubah Oranye", price: 100000, img: "Rubah.jpeg", cap: "Ukuran: 35cm | Berat: 300g | Ekor besar berbulu lebat untuk bantal leher.", promo: false },
+        { id: 18, name: "Gajah Abu Elegan", price: 120000, img: "Gajah.jpeg", cap: "Ukuran: 40cm | Berat: 400g | Telinga lebar yang lembut, cocok untuk teman bermain bayi.", promo: false },
+        { id: 19, name: "Kelinci Telinga Panjang", price: 110000, img: "Kelinci.jpg", cap: "Ukuran: 45cm | Berat: 320g | Bulu halus premium dengan telinga yang bisa ditekuk.", promo: false },
+        { id: 20, name: "Monyet Ceria", price: 85000, img: "Monyet.jpg", cap: "Ukuran: 30cm | Berat: 250g | Tangan dilengkapi perekat untuk digantung di mana saja.", promo: false }
+    ];
+
+    function getCart() { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+    function saveCart(cart) { localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+    function updateCartCount() {
+        const cart = getCart();
+        const total = cart.reduce((sum, item) => sum + item.qty, 0);
+        const span = document.getElementById('cart-count');
+        if (span) span.innerText = total;
+    }
+    function addToCart(productId, qtyInputId) {
+        const qtyInput = document.getElementById(qtyInputId);
+        let qty = parseInt(qtyInput.value);
+        if (isNaN(qty) || qty < 1) qty = 1;
+        const product = products.find(p => p.id === productId);
+        const cart = getCart();
+        const existing = cart.find(item => item.id === productId);
+        if (existing) existing.qty += qty;
+        else cart.push({ ...product, qty: qty });
+        saveCart(cart);
+        qtyInput.value = 1;
+        alert(`👍 ${product.name} x${qty} ditambahkan ke keranjang`);
+    }
+
+    // Fungsi modal preview [tambahan]
+    function openPreview(imgSrc) {
+        document.getElementById('imgFull').src = imgSrc;
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closePreview() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    function renderAll() {
+        const container = document.getElementById('all-products-container');
+        container.innerHTML = products.map(p => `
+            <div class="product-card">
+                <!-- img-box sekarang memiliki fungsi onclick -->
+                <div class="img-box" onclick="openPreview('${p.img}')">
+                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placekitten.com/200/200'">
+                </div>
+                <div class="info-box">
+                    <h3>${p.name}</h3>
+                    <p class="caption">${p.cap}</p>
+                    <p class="price">Rp${p.price.toLocaleString()}</p>
+                    <div class="qty-input">
+                        <button class="qty-btn" onclick="this.nextElementSibling.stepDown()">-</button>
+                        <input type="number" value="1" min="1" id="qty-${p.id}">
+                        <button class="qty-btn" onclick="this.previousElementSibling.stepUp()">+</button>
+                    </div>
+                    <button class="btn-buy" onclick="addToCart(${p.id}, 'qty-${p.id}')">TAMBAH KE KERANJANG</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.onload = () => { renderAll(); updateCartCount(); };
+    window.addEventListener('pageshow', updateCartCount);
+</script>
+</body>
+</html>
